@@ -455,7 +455,17 @@ const Scroller = {
 const getSpecialScrollingElement = function () {
   const selector = specialScrollingElementMap[globalThis.location.host];
   if (selector) {
-    return document.querySelector(selector);
+    const element = document.querySelector(selector);
+    if (element) return element;
+  }
+  // Support BewlyCat/BewlyBewly extension's Shadow DOM scroll viewport.
+  // #bewly is injected into document.body with an open shadow root; .bewly-scroll-viewport is
+  // the actual scrollable container inside it. Without this, Vimium falls back to
+  // document.scrollingElement which BewlyCat has hidden, and scrolling breaks.
+  const bewlyHost = document.getElementById("bewly");
+  if (bewlyHost?.shadowRoot) {
+    const viewport = bewlyHost.shadowRoot.querySelector(".bewly-scroll-viewport");
+    if (viewport) return viewport;
   }
 };
 
